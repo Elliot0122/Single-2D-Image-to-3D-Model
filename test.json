@@ -1,0 +1,18 @@
+{
+    "obj2":{
+        "type": "Box",
+        "parameter":{
+            "reference_point":[0, 0, 0],
+            "x_y_z":[8, 60, 5]
+        }
+    },
+    "obj3": {
+        "type": "Cylinder",
+        "parameter":{
+            "reference_point":[0, 0, 0],
+            "height":6,
+            "radius":6,
+            "cap": "True"
+        }
+    }
+}
