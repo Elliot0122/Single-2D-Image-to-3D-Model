@@ -1,5 +1,4 @@
 import json
-import os
 
 def read_Json(file_name):
     with open(file_name, "r") as f:
@@ -15,15 +14,17 @@ def create_box(types, parameter):
     refer_point = parameter["reference_point"]
     len_wid_hei = parameter["l_w_h"]
     corner = [
-        [refer_point[0]-len_wid_hei[0], refer_point[1]-len_wid_hei[1], refer_point[2]-len_wid_hei[2]],
-        [refer_point[0]-len_wid_hei[0], refer_point[1]-len_wid_hei[1], refer_point[2]+len_wid_hei[2]],
-        [refer_point[0]-len_wid_hei[0], refer_point[1]+len_wid_hei[1], refer_point[2]+len_wid_hei[2]],
-        [refer_point[0]-len_wid_hei[0], refer_point[1]+len_wid_hei[1], refer_point[2]-len_wid_hei[2]],
-        [refer_point[0]+len_wid_hei[0], refer_point[1]-len_wid_hei[1], refer_point[2]-len_wid_hei[2]],
-        [refer_point[0]+len_wid_hei[0], refer_point[1]-len_wid_hei[1], refer_point[2]+len_wid_hei[2]],
-        [refer_point[0]+len_wid_hei[0], refer_point[1]+len_wid_hei[1], refer_point[2]+len_wid_hei[2]],
-        [refer_point[0]+len_wid_hei[0], refer_point[1]+len_wid_hei[1], refer_point[2]-len_wid_hei[2]]]
+        [refer_point[0]-len_wid_hei[0]/2, refer_point[1]-len_wid_hei[1]/2, refer_point[2]-len_wid_hei[2]/2],
+        [refer_point[0]-len_wid_hei[0]/2, refer_point[1]-len_wid_hei[1]/2, refer_point[2]+len_wid_hei[2]/2],
+        [refer_point[0]-len_wid_hei[0]/2, refer_point[1]+len_wid_hei[1]/2, refer_point[2]+len_wid_hei[2]/2],
+        [refer_point[0]-len_wid_hei[0]/2, refer_point[1]+len_wid_hei[1]/2, refer_point[2]-len_wid_hei[2]/2],
+        [refer_point[0]+len_wid_hei[0]/2, refer_point[1]-len_wid_hei[1]/2, refer_point[2]-len_wid_hei[2]/2],
+        [refer_point[0]+len_wid_hei[0]/2, refer_point[1]-len_wid_hei[1]/2, refer_point[2]+len_wid_hei[2]/2],
+        [refer_point[0]+len_wid_hei[0]/2, refer_point[1]+len_wid_hei[1]/2, refer_point[2]+len_wid_hei[2]/2],
+        [refer_point[0]+len_wid_hei[0]/2, refer_point[1]+len_wid_hei[1]/2, refer_point[2]-len_wid_hei[2]/2]]
     f.write(f'rs.Add{types}({corner})\n')
+def create_box_with_points(types, parameter):
+    f.write(f'rs.Add{types}({parameter})\n')
 def create_object(types, parameter):
     objects = {
         "Sphere": create_sphere_circle,
@@ -31,13 +32,15 @@ def create_object(types, parameter):
         "Cone": create_cylinder_cone,
         "Cylinder": create_cylinder_cone,
         "Point": create_point,
-        "Box": create_box
+        "Box": create_box,
+        "Box_with_points": create_box_with_points
     }
     return objects[types](types, parameter)
 
 if __name__ == "__main__":
-    file_name = "test.json"
-    f = open(file_name.split(".")[0]+".py", 'w')
+    chair = '32-1'
+    file_name = f"{chair}/{chair}.json"
+    f = open(f"{file_name.split('.')[0]}_rhino.py", 'w')
     f.write("import rhinoscriptsyntax as rs\n")
     data = read_Json(file_name)
     for element in data:
