@@ -5,6 +5,8 @@ import reference_points as rp
 import numpy as np
 from numpy.linalg import norm as distance
 from sys import exit
+from rectification import run_rectification
+from single_pic_contour import run_contour, left_bottom
 
 def whole_lwh(Left_source, Right_source):
     length, height = rp.length_height(Left_source, Right_source)
@@ -77,16 +79,16 @@ def leg_offset(Left_handle, Leg):
     return distance(reference_points[0]-reference_points[1])
 
 def construct_box(part, ref_x, ref_y, ref_z, length, width, height):
-    parts_obj = {}
-    parts_obj[part] = {"type":"Box", "parameter":{"reference_point":[ref_x, ref_y, ref_z], "l_w_h":[length, width, height]}}
+    obj = {}
+    obj[part] = {"type":"Box", "parameter":{"reference_point":[ref_x, ref_y, ref_z], "l_w_h":[length, width, height]}}
     
-    return parts_obj
+    return obj
 
 def construct_cylinder(part, ref_x, ref_y, ref_z, length, width, height):
-    parts_obj = {}
-    parts_obj[part] = {"type":"Cylinder", "parameter":{"reference_point":[ref_x, ref_y, ref_z], "height":height, "radius": length/2, "cap": True}}
+    obj = {}
+    obj[part] = {"type":"Cylinder", "parameter":{"reference_point":[ref_x, ref_y, ref_z], "height":height, "radius": length/2, "cap": True}}
     
-    return parts_obj
+    return obj
 
 def create_handle(path, whole_length , whole_width, whole_height):
     length, width , height = get_parameter(path)
@@ -136,7 +138,31 @@ def create_cylinder_legs(path, whole_length , whole_width, whole_height, offset)
     
     return obj1, obj2, obj3, obj4
 
+def create_irregular_handles(path, whole_length, whole_width, whole_height, left_length):
+    obj = {}
+    run_rectification(path)
+    contour_points = run_contour(path)
+    lebo = left_bottom(contour_points)
+    left_points = []
+    right_points = []
+    for i in contour_points:
+        temp = []
+        temp.append(i[0] + whole_length/2)
+        temp.append(i[1] - lebo[1] + whole_width/2)
+        temp.append(i[2] - lebo[2] - whole_height/2)
+        left_points.append(temp)
+    for i in contour_points:
+        temp = []
+        temp.append(i[0] - whole_length/2)
+        temp.append(i[1] - lebo[1] + whole_width/2)
+        temp.append(i[2] - lebo[2] - whole_height/2)
+        right_points.append(temp)
+    obj["left_handle_irregular"] = {"type":"Plane_extrue", "parameter":{"points":left_points, "thickness":-left_length}}
+    obj["right_handle_irregular"] = {"type":"Plane_extrue", "parameter":{"points":right_points, "thickness":+left_length}}
+    return obj
+
 def run(file_path):
+    irregular_flag = False
     Left_source = f'./{file_path}/part_contour/left_handle.png'
     Right_source = f'./{file_path}/part_contour/right_handle.png'
     Bottom_source = f'./{file_path}/part_contour/bottom.png'
@@ -145,21 +171,26 @@ def run(file_path):
     Back_cushion_source = f'./{file_path}/part_contour/back_cushion.png'
     Box_leg_source = f'./{file_path}/part_contour/box_leg.png'
     Cylinder_leg_source = f'./{file_path}/part_contour/cylinder_leg.png'
+    Left_irregular_source = f'./{file_path}/part_contour/left_handle_irregular.png'
+    Right_irregular_source = f'./{file_path}/part_contour/right_handle_irregular.png'
     lower_bottom_height = 0
     back_cushion_offset = 0
     parts_obj = {}
     if os.path.isfile(Left_source):
-        if os.path.isfile(Right_source):
-            whole_length , whole_width, whole_height, height_ratio = whole_lwh(Left_source, Right_source)
-        else:
-            exit()
+        pass
+    elif os.path.isfile(Left_irregular_source):
+        Left_source = Left_irregular_source
+        Right_source = Right_irregular_source
+        irregular_flag = True
     else:
         exit()
+    whole_length , whole_width, whole_height, height_ratio = whole_lwh(Left_source, Right_source)
 
     if os.path.isfile(Left_source):
         left_handle_length, left_obj, right_obj= create_handle(Left_source, whole_length , whole_width, whole_height)
-        parts_obj["left_handle"] = left_obj["left_handle"]
-        parts_obj["right_handle"] = right_obj["right_handle"]
+        if not irregular_flag:
+            parts_obj["left_handle"] = left_obj["left_handle"]
+            parts_obj["right_handle"] = right_obj["right_handle"]
 
     if os.path.isfile(Lower_bottom_source):
         obj, lower_bottom_height = create_lower_bottom(Lower_bottom_source, whole_length , whole_width, whole_height, left_handle_length)
@@ -179,7 +210,7 @@ def run(file_path):
 
     if os.path.isfile(Box_leg_source):
         offset = leg_offset(Left_source, Box_leg_source)
-        obj1, obj2, obj3, obj4 = create_cylinder_legs(Box_leg_source, whole_length, whole_width, whole_height, offset)
+        obj1, obj2, obj3, obj4 = create_box_legs(Box_leg_source, whole_length, whole_width, whole_height, offset)
         parts_obj["leg1"] = obj1["leg1"]
         parts_obj["leg2"] = obj2["leg2"]
         parts_obj["leg3"] = obj3["leg3"]
@@ -192,10 +223,15 @@ def run(file_path):
         parts_obj["leg2"] = obj2["leg2"]
         parts_obj["leg3"] = obj3["leg3"]
         parts_obj["leg4"] = obj4["leg4"]
+    
+    if os.path.isfile(Left_irregular_source) and irregular_flag:
+        obj = create_irregular_handles(file_path, whole_length, whole_width, whole_height, left_handle_length)
+        parts_obj["left_handle_irregular"] = obj["left_handle_irregular"]
+        parts_obj["right_handle_irregular"] = obj["right_handle_irregular"]
 
     postfix = file_path.split("\\")[1]
     with open(f'{file_path}/{postfix}.json', 'w', encoding='utf-8') as f:
         json.dump(parts_obj, f, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    run('chairs\\1-1')
+    run('chairs\\51-1')

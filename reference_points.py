@@ -7,8 +7,8 @@ def length_height(left_source, right_source):
     right_handle = cv2.imread(right_source)
     left_handle_gary = cv2.cvtColor(left_handle, cv2.COLOR_BGR2GRAY)
     right_handle_gray = cv2.cvtColor(right_handle, cv2.COLOR_BGR2GRAY)
-    r_cont = np.array(np.where(right_handle_gray == 255))
     l_cont = np.array(np.where(left_handle_gary == 255))
+    r_cont = np.array(np.where(right_handle_gray == 255))
 
     # left_top -> right_top -> right_bottom -> left bottom
     reference_points = np.zeros((4, 2))

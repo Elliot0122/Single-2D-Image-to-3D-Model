@@ -10,7 +10,9 @@ def run(file_path):
 
     box = {
         "left_handle" : [115, 1, 1],
+        "left_handle_irregular": [230, 2, 10],
         "right_handle" : [5, 5, 1],
+        "right_handle_irregular":[20, 100, 100],
         "cushion" : [1, 115, 1],
         "back_cushion" : [115, 115, 1],
         "bottom" : [24, 24, 1],
@@ -24,7 +26,7 @@ def run(file_path):
             box_exist.append(key)
     image_part = {}
     for i in box_exist:
-        image_part[i] = np.full((height+40, length+40, 3), 255)
+        image_part[i] = np.full((height+40, length+40, 3), 255, np.uint8)
     for i in range(height):
         for j in range(length):
             if (image[i][j] == [255, 255, 255]).all():
@@ -33,17 +35,17 @@ def run(file_path):
                 for k in box_exist:
                     if (image[i][j] == box[k]).all():
                         image_part[k][i+20][j+20] = image[i][j]
+    try:
+        os.mkdir(f"{file_path}")
+        os.mkdir(f"{file_path}/parts")
+        os.mkdir(f"{file_path}/part_contour")
+    except:
+        pass
     for i in box_exist:
-        try:
-            os.mkdir(f"{file_path}")
-            os.mkdir(f"{file_path}/parts")
-            os.mkdir(f"{file_path}/part_contour")
-        except:
-            pass
         cv2.imwrite(f"{file_path}/parts/{i}.png", image_part[i])
         image = cv2.imread(f"{file_path}/parts/{i}.png")
         edges = cv2.Canny(image,140,150)
         cv2.imwrite(f"{file_path}/part_contour/{i}.png", edges)
 
 if __name__ == "__main__":
-    run('chairs\\1-1')
+    run('chairs\\51-1')

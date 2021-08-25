@@ -30,7 +30,13 @@ def create_box(f, types, parameter):
     f.write(f'rs.Add{types}({corner})\n')
 
 def create_box_with_points(f, types, parameter):
-    f.write(f'rs.Add{types}({parameter})\n')
+    f.write(f'rs.Add{types}({parameter["points"]})\n')
+
+def create_extrude_plane(f, types, parameter):
+    f.write(f'points = {parameter["points"]}\n')
+    f.write(f'srf = rs.AddPlanarSrf(rs.AddCurve(points))\n')
+    f.write(f'guide = rs.AddLine([0, 0, 0], [{parameter["thickness"]}, 0, 0])\n')
+    f.write(f'extru = rs.ExtrudeSurface(srf, guide, True)\n')
 
 def create_object(f, types, parameter):
     objects = {
@@ -40,7 +46,8 @@ def create_object(f, types, parameter):
         "Cylinder": create_cylinder_cone,
         "Point": create_point,
         "Box": create_box,
-        "Box_with_points": create_box_with_points
+        "Box_with_points": create_box_with_points,
+        "Plane_extrue": create_extrude_plane
     }
     
     return objects[types](f, types, parameter)
@@ -56,4 +63,4 @@ def run(file_path):
     f.close()
 
 if __name__ == "__main__":
-    run('chairs\\1-1')
+    run('chairs\\51-1')
