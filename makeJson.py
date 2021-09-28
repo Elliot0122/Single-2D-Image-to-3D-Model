@@ -47,27 +47,22 @@ def get_parameter(path):
 
     return length, length, height
 
-def cushion_offset(cushion_path, back_cushion_path):
-    cushion = cv2.imread(cushion_path)
-    back_cushion = cv2.imread(back_cushion_path)
-    cushion_height = 0
-    back_cushion_height = 0
-    for i in range(cushion.shape[0]):
-        for j in range(cushion.shape[1]):
-            if (cushion[i][j] == [255, 255, 255]).all():
-                cushion_height = i
-                break
-        if cushion_height != 0:
-            break
-    for i in range(back_cushion.shape[0]):
-        for j in range(back_cushion.shape[1]):
-            if (back_cushion[i][j] == [255, 255, 255]).all():
-                back_cushion_height = i
-                break
-        if back_cushion_height != 0:
-            break
-
-    return back_cushion_height - cushion_height
+def cushion_height(handle_path, cushion_path, whole_height, lower_bottom_height, bottom_height):
+    handle_height = 1000000
+    cushion_height = 1000000
+    if os.path.isfile(handle_path):
+        handle_image = cv2.imread(handle_path)
+        handle_image = cv2.cvtColor(handle_image, cv2.COLOR_BGR2GRAY)
+    cushion_image = cv2.imread(cushion_path)
+    cushion_image = cv2.cvtColor(cushion_image, cv2.COLOR_BGR2GRAY)
+    for i in np.array(np.where(handle_image == 255)).T:
+        if i[0] < handle_height:
+            handle_height = i[0]
+    for i in np.array(np.where(cushion_image == 255)).T:
+        if i[0] < cushion_height:
+            cushion_height = i[0]
+    print(whole_height, lower_bottom_height, bottom_height, cushion_height, handle_height)
+    return whole_height-lower_bottom_height-bottom_height + (handle_height - cushion_height)
 
 def construct_box(part, ref_x, ref_y, ref_z, length, width, height):
     obj = {}
@@ -100,8 +95,8 @@ def create_bottom(path, whole_length , whole_width, whole_height, left_length, l
     
     return obj, height
 
-def create_back_cushion(path, whole_length , whole_width, whole_height, height_ratio, left_length, offset):
-    obj = construct_box("back_cushion", 0, (whole_width-left_length)/2, offset/2, whole_length-left_length, left_length, whole_height*height_ratio+offset)
+def create_back_cushion(path, whole_length , whole_width, whole_height, height_ratio, left_length):
+    obj = construct_box("back_cushion", 0, (whole_width-left_length)/2, 0, whole_length-left_length, left_length, whole_height*height_ratio)
     
     return obj, left_length
 
@@ -199,11 +194,12 @@ def run(file_path):
         parts_obj["bottom"] = obj["bottom"]
 
     if os.path.isfile(Back_cushion_source):
-        offset = cushion_offset(Cushion_source, Back_cushion_source)
-        obj, back_cushion_offset = create_back_cushion(Back_cushion_source, whole_length, whole_width, whole_height, height_ratio, left_handle_length, offset)
+        print(cushion_height(Left_source, Cushion_source, whole_height, lower_bottom_height, bottom_height))
+        obj, back_cushion_offset = create_back_cushion(Back_cushion_source, whole_length, whole_width, whole_height, height_ratio, left_handle_length)
         parts_obj["back_cushion"] = obj["back_cushion"]
 
     if os.path.isfile(Cushion_source):
+        print(cushion_height(Left_source, Cushion_source, whole_height, lower_bottom_height, bottom_height))
         obj = create_cushion(Cushion_source, whole_length , whole_width, whole_height, height_ratio, left_handle_length, bottom_height, lower_bottom_height, back_cushion_offset)
         parts_obj["cushion"] = obj["cushion"]
 
@@ -226,5 +222,4 @@ def run(file_path):
         json.dump(parts_obj, f, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    get_parameter(f'.\\chairs\\35-1\\part_contour\\box_leg.png')
-    # run('chairs\\35-1')
+    run('chairs\\1-1')
