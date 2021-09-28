@@ -63,4 +63,4 @@ def run(file_path):
     f.close()
 
 if __name__ == "__main__":
-    run('chairs\\16-1')
+    run('chairs\\1-1')
