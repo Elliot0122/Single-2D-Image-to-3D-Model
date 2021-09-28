@@ -132,13 +132,13 @@ def create_irregular_handles(path, whole_length, whole_width, whole_height):
     right_points = []
     for i in contour_points:
         temp = []
-        temp.append(i[0] + whole_length/2)
+        temp.append(i[0] + (whole_length+thickness)/2)
         temp.append(i[1] - lebo[1] + whole_width/2)
         temp.append(i[2] - lebo[2] - whole_height/2)
         left_points.append(temp)
     for i in contour_points:
         temp = []
-        temp.append(i[0] - whole_length/2)
+        temp.append(i[0] - (whole_length+thickness)/2)
         temp.append(i[1] - lebo[1] + whole_width/2)
         temp.append(i[2] - lebo[2] - whole_height/2)
         right_points.append(temp)
