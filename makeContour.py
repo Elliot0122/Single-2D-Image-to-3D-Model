@@ -48,4 +48,4 @@ def run(file_path):
         cv2.imwrite(f"{file_path}/part_contour/{i}.png", edges)
 
 if __name__ == "__main__":
-    run('chairs\\7-1')
+    run('chairs\\16-1')

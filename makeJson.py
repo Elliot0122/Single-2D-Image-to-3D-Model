@@ -11,8 +11,9 @@ from single_pic_contour import run_contour, left_bottom
 def whole_lwh(Left_source, Right_source):
     length, height = rp.length_height(Left_source, Right_source)
     height_ratio = rp.front_back_height_ratio(Left_source)
+    left_right_ratio = rp.left_right_length_ratio(Left_source, Right_source)
     
-    return length, length, height, height_ratio
+    return length, length, height, height_ratio, left_right_ratio
 
 def get_parameter(path):
     image = cv2.imread(path)
@@ -20,36 +21,29 @@ def get_parameter(path):
     contour = np.array(np.where(gray == 255))
     # right_top -> right_bottom -> left bottom
     reference_points = np.zeros((3, 2), dtype=np.int32)
-    diff_s = 0
+    diff_s = -10000000
     diff_b = 10000000
+    reference_points[2][1] = 10000000
     for i in contour.T:
-        # y = n maximum
-        if 3*i[0] + i[1] >= diff_s:
-            diff_s = 3*i[0]+i[1]
-            reference_points[1] = i
         # y = -x + n minimum
-        if i[0] + i[1] <= diff_b:
-            diff_b = i[0]+i[1]
+        if i[0] + 2*i[1] <= diff_b:
+            diff_b = i[0]+2*i[1]
             reference_points[0] = i
-    diff_s = 0
-    temp_point = [0, 0]
+        # y = n maximum
+        if 10*i[0] + i[1] >= diff_s:
+            diff_s = 10*i[0]+i[1]
+            reference_points[1] = i
+    diff_b = -10000000
     for i in contour.T:
-        if i[0] - i[1] >= diff_s:
-            diff_s = i[0] - i[1]
-            temp_point = i
-    reference_points[0] += reference_points[1]-temp_point
-    diff_s = 0
-    diff_b = 10000000
-    for i in contour.T:
-        # y = x + n maximum
-        if i[0] - i[1] >= diff_s:
-            diff_s = i[0] - i[1]
+        if i[0]-i[1] >= diff_b:
+            diff_b = i[0]-i[1]
             reference_points[2] = i
     # for i in reference_points:
     #     image[i[0]][i[1]] = [0, 0, 255]
-    # cv2.imwrite(f"test{cnt}.png", image)
+    # reference_points[0] += reference_points[1]-reference_points[2]
+    # cv2.imwrite(f"test{path.split('/')[3]}", image)
     height = distance(reference_points[0]-reference_points[1])
-    length = distance(reference_points[1]-reference_points[2])
+    length = np.float64(reference_points[1][1]-reference_points[2][1])
 
     return length, length, height
 
@@ -87,12 +81,12 @@ def construct_cylinder(part, ref_x, ref_y, ref_z, length, width, height):
     
     return obj
 
-def create_handle(path, whole_length , whole_width, whole_height):
+def create_handle(path, whole_length , whole_width, whole_height, left_right_ratio):
     length, width , height = get_parameter(path)
-    left_obj = construct_box("left_handle", whole_length/2, 0, 0, length, whole_width, height)
-    right_obj = construct_box("right_handle", -whole_length/2, 0, 0, length, whole_width, height)
+    left_obj = construct_box("left_handle", whole_length/2, 0, 0, length/left_right_ratio, whole_width, height)
+    right_obj = construct_box("right_handle", -whole_length/2, 0, 0, length/left_right_ratio, whole_width, height)
     
-    return length, left_obj, right_obj
+    return length/left_right_ratio, height, left_obj, right_obj
 
 def create_lower_bottom(path, whole_length , whole_width, whole_height, left_length):
     length, width , height = get_parameter(path)
@@ -107,13 +101,13 @@ def create_bottom(path, whole_length , whole_width, whole_height, left_length, l
     return obj, height
 
 def create_back_cushion(path, whole_length , whole_width, whole_height, height_ratio, left_length, offset):
-    obj = construct_box("back_cushion", 0, (whole_width-left_length)/2, offset/2, whole_length-left_length, left_length, whole_height+offset)
+    obj = construct_box("back_cushion", 0, (whole_width-left_length)/2, offset/2, whole_length-left_length, left_length, whole_height*height_ratio+offset)
     
     return obj, left_length
 
 def create_cushion(path, whole_length , whole_width, whole_height, height_ratio, left_length, bottom_height, lower_bottom_height, back_cushion_offset):
     length, width , height = get_parameter(path)
-    obj = construct_box("cushion", 0, (whole_width-left_length)/2-back_cushion_offset, -(whole_height-height)/2+bottom_height+lower_bottom_height, whole_length-left_length, left_length, height*height_ratio)
+    obj = construct_box("cushion", 0, (whole_width-left_length)/2-back_cushion_offset, -(whole_height-height*height_ratio)/2+bottom_height+lower_bottom_height, whole_length-left_length, left_length, height*height_ratio)
     
     return obj
 
@@ -135,9 +129,9 @@ def create_cylinder_legs(path, whole_length , whole_width, whole_height):
     
     return obj1, obj2, obj3, obj4
 
-def create_irregular_handles(path, whole_length, whole_width, whole_height, left_length):
+def create_irregular_handles(path, whole_length, whole_width, whole_height):
     obj = {}
-    run_rectification(path)
+    thickness = run_rectification(path)
     contour_points = run_contour(path)
     lebo = left_bottom(contour_points)
     left_points = []
@@ -154,9 +148,9 @@ def create_irregular_handles(path, whole_length, whole_width, whole_height, left
         temp.append(i[1] - lebo[1] + whole_width/2)
         temp.append(i[2] - lebo[2] - whole_height/2)
         right_points.append(temp)
-    obj["left_handle_irregular"] = {"type":"Plane_extrue", "parameter":{"points":left_points, "thickness":-left_length}}
-    obj["right_handle_irregular"] = {"type":"Plane_extrue", "parameter":{"points":right_points, "thickness":+left_length}}
-    return obj
+    obj["left_handle_irregular"] = {"type":"Plane_extrue", "parameter":{"points":left_points, "thickness":-thickness}}
+    obj["right_handle_irregular"] = {"type":"Plane_extrue", "parameter":{"points":right_points, "thickness":+thickness}}
+    return obj, thickness
 
 def run(file_path):
     irregular_flag = False
@@ -181,13 +175,20 @@ def run(file_path):
         irregular_flag = True
     else:
         exit()
-    whole_length , whole_width, whole_height, height_ratio = whole_lwh(Left_source, Right_source)
+    whole_length , whole_width, whole_height, height_ratio, left_right_ratio= whole_lwh(Left_source, Right_source)
+    left_right_ratio-=0.5
+    height_ratio = 1
 
     if os.path.isfile(Left_source):
-        left_handle_length, left_obj, right_obj= create_handle(Left_source, whole_length , whole_width, whole_height)
+        left_handle_length, whole_height, left_obj, right_obj= create_handle(Left_source, whole_length , whole_width, whole_height, left_right_ratio)
         if not irregular_flag:
             parts_obj["left_handle"] = left_obj["left_handle"]
             parts_obj["right_handle"] = right_obj["right_handle"]
+    
+    if os.path.isfile(Left_irregular_source) and irregular_flag:
+        obj, left_handle_length= create_irregular_handles(file_path, whole_length, whole_width, whole_height)
+        parts_obj["left_handle_irregular"] = obj["left_handle_irregular"]
+        parts_obj["right_handle_irregular"] = obj["right_handle_irregular"]
 
     if os.path.isfile(Lower_bottom_source):
         obj, lower_bottom_height = create_lower_bottom(Lower_bottom_source, whole_length , whole_width, whole_height, left_handle_length)
@@ -219,15 +220,11 @@ def run(file_path):
         parts_obj["leg2"] = obj2["leg2"]
         parts_obj["leg3"] = obj3["leg3"]
         parts_obj["leg4"] = obj4["leg4"]
-    
-    if os.path.isfile(Left_irregular_source) and irregular_flag:
-        obj = create_irregular_handles(file_path, whole_length, whole_width, whole_height, left_handle_length)
-        parts_obj["left_handle_irregular"] = obj["left_handle_irregular"]
-        parts_obj["right_handle_irregular"] = obj["right_handle_irregular"]
 
     postfix = file_path.split("\\")[1]
     with open(f'{file_path}/{postfix}.json', 'w', encoding='utf-8') as f:
         json.dump(parts_obj, f, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    run('chairs\\7-1')
+    get_parameter(f'.\\chairs\\35-1\\part_contour\\box_leg.png')
+    # run('chairs\\35-1')

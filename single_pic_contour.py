@@ -27,21 +27,6 @@ def get_contour(img):
     blank = np.zeros((img.shape[0], img.shape[1]), np.uint8)
     for pt in newcont:
         blank[pt[0]][pt[1]] = 255
-
-    for i in range(blank.shape[0]-2):
-        for j in range(blank.shape[1]-2):
-            if blank[i][j] == 255:
-                blank[i][j+1] = 0
-                blank[i][j+2] = 0
-                blank[i+1][j-1] = 0
-                blank[i+1][j] = 0
-                blank[i+1][j+1] = 0
-                blank[i+1][j+2] = 0
-                blank[i+2][j-1] = 0
-                blank[i+2][j-1] = 0
-                blank[i+2][j] = 0
-                blank[i+2][j+1] = 0
-                blank[i+2][j+2] = 0
     
     cv2.imwrite(f"test.png", blank)
 
@@ -49,9 +34,8 @@ def get_contour(img):
 
 def order_sorting(image):
     contour = np.array(np.where(image == 255)).T
-    right_order = np.zeros((contour.shape[0]+1, 3))
+    right_order = []
     ref_point = [0, 0, 0]
-    cnt = 0
     while(contour.size != 0):
         ref_distance = 100000000000
         del_order = 0
@@ -61,12 +45,10 @@ def order_sorting(image):
                 ref_distance = temp_distance
                 del_order = i
         ref_point[:-1] = contour[del_order]
-        right_order[cnt][0] = 0
-        right_order[cnt][1] = contour[del_order][1]
-        right_order[cnt][2] = -contour[del_order][0]
-        cnt+=1
+        if ref_distance < 10:
+            right_order.append([0, contour[del_order][1], -contour[del_order][0]])
         contour = np.delete(contour, del_order, 0)
-    right_order[-1] = right_order[0]
+    right_order.append(right_order[0])
     return right_order
 
 
@@ -83,12 +65,28 @@ def left_bottom(final_contour):
 def run_contour(file_path):
     path = "parts/Left_handle_irregular_rected.png"
     image = cv2.imread(os.path.join(file_path, path))
-    image = get_contour(image)
-    final_contour = order_sorting(image)
+    # image = get_contour(image)
+    blank = cv2.Canny(image,140,150)
+    for i in range(blank.shape[0]-2):
+        for j in range(blank.shape[1]-2):
+            if blank[i][j] == 255:
+                blank[i][j+1] = 0
+                blank[i][j+2] = 0
+                blank[i+1][j-1] = 0
+                blank[i+1][j] = 0
+                blank[i+1][j+1] = 0
+                blank[i+1][j+2] = 0
+                blank[i+2][j-1] = 0
+                blank[i+2][j-1] = 0
+                blank[i+2][j] = 0
+                blank[i+2][j+1] = 0
+                blank[i+2][j+2] = 0
+    cv2.imwrite(f"test.png", blank)
+    final_contour = order_sorting(blank)
     # with open(os.path.join(file_path, "Left_handle_irregular.txt"), "w") as f:
     #     for i in final_contour:
     #         f.write(f'{i[0]} {i[1]}\n')
     return final_contour
 
 if __name__ == "__main__":
-    cont = run_contour('chairs\\42-1')
+    cont = run_contour('chairs\\35-1')

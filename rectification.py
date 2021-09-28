@@ -2,6 +2,7 @@ import cv2
 import os
 import numpy as np
 from numpy.linalg import norm as distance
+from sys import exit
 
 def ref_point(left_source):
     left_handle = cv2.imread(left_source)
@@ -15,29 +16,33 @@ def ref_point(left_source):
     for i in l_cont.T:
         # y = x + n maximum
         if i[0]>= diff_s:
+            diff_s = i[0]
             reference_points[3] = i
     diff_s = 0
     diff_b = 10000000
+    thickness = 0
     for i in l_cont.T:
         # y = x + n maximum
-        if i[0] + i[1] >= diff_s:
-            diff_s = i[0] + i[1]
+        if i[0] + 3*i[1] >= diff_s:
+            diff_s = i[0] + 3*i[1]
             reference_points[2] = i
         # y = -x + n minimum
         if i[0] - i[1] <= diff_b:
             diff_b = i[0] - i[1]
             reference_points[1] = i
+        if reference_points[3][1] - i[1] > thickness:
+            thickness = reference_points[3][1] - i[1]
 
     reference_points[0] = reference_points[1] + reference_points[3] - reference_points[2]
 
-    # for i in reference_points:
-    #     left_handle[int(i[0])][int(i[1])] = [0, 0, 255]
-    # cv2.imwrite(f"test.png", left_handle)
-    
+    for i in reference_points:
+        left_handle[int(i[0])][int(i[1])] = [0, 0, 255]
+    cv2.imwrite(f"test1.png", left_handle)
+
     for i in reference_points:
         i[0], i[1] = i[1], i[0]
 
-    return reference_points
+    return reference_points, thickness
 
 def length_height(left_source, right_source):
     left_handle = cv2.imread(left_source)
@@ -95,9 +100,8 @@ def run_rectification(source):
     # left_handle_cont and right_handle_cont in rp.side and rp.facadeare are based on
     # the contour we get from chair.py which would be stored in ./part_contour
     # src = rp.facade(left_source, right_source)
-    src = ref_point(left_source)
+    src, thickness = ref_point(left_source)
     dst = length_height(left_source, right_source)
-
     H = cv2.getPerspectiveTransform(src, dst)
     R = np.linalg.inv(H)
     offset = np.full((3, 1),1)
@@ -116,7 +120,7 @@ def run_rectification(source):
 
     # print(border_up_left)
     # print(border_lower_right)
-    dst = cv2.warpPerspective(newimage, H, (int(border_lower_right[1]), int(border_lower_right[0])), cv2.INTER_LINEAR)
+    dst = cv2.warpPerspective(newimage, H, (int(border_lower_right[0]), int(border_lower_right[1])), cv2.INTER_LINEAR)
 
     final_image = np.full((dst.shape[0], dst.shape[1], 3), 255, np.uint8)
     for i in range(dst.shape[0]):
@@ -125,8 +129,9 @@ def run_rectification(source):
                 final_image[i][j] = [230, 2, 10]
 
     cv2.imwrite(os.path.join(source,'parts/Left_handle_irregular_rected.png'), final_image)
+    return thickness
 
 # -------- main program -------------------------
 if __name__ == "__main__":
-    source = 'chairs\\16-1'
-    run_rectification(source)
+    source = 'chairs\\51-1'
+    thickness = run_rectification(source)
