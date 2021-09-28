@@ -30,18 +30,18 @@ def get_parameter(path):
             diff_b = i[0]+2*i[1]
             reference_points[0] = i
         # y = n maximum
-        if 10*i[0] + i[1] >= diff_s:
-            diff_s = 10*i[0]+i[1]
+        if 9*i[0] + i[1] >= diff_s:
+            diff_s = 9*i[0]+i[1]
             reference_points[1] = i
     diff_b = -10000000
     for i in contour.T:
         if i[0]-i[1] >= diff_b:
             diff_b = i[0]-i[1]
             reference_points[2] = i
-    # for i in reference_points:
-    #     image[i[0]][i[1]] = [0, 0, 255]
-    # reference_points[0] += reference_points[1]-reference_points[2]
-    # cv2.imwrite(f"test{path.split('/')[3]}", image)
+    for i in reference_points:
+        image[i[0]][i[1]] = [0, 0, 255]
+    reference_points[0] += reference_points[1]-reference_points[2]
+    cv2.imwrite(f"test{path.split('/')[3]}", image)
     height = distance(reference_points[0]-reference_points[1])
     length = np.float64(reference_points[1][1]-reference_points[2][1])
 
