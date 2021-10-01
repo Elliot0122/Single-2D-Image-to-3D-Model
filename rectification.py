@@ -35,9 +35,11 @@ def ref_point(left_source):
 
     reference_points[0] = reference_points[1] + reference_points[3] - reference_points[2]
 
-    for i in reference_points:
-        left_handle[int(i[0])][int(i[1])] = [0, 0, 255]
-    cv2.imwrite(f"test1.png", left_handle)
+    # for i in reference_points:
+    #     left_handle[int(i[0])][int(i[1])] = [0, 0, 255]
+    # left_handle[int(reference_points[3][0])][int(reference_points[3][1])] = [0, 255, 0]
+    # cv2.imwrite(f"test.png", left_handle)
+
 
     for i in reference_points:
         i[0], i[1] = i[1], i[0]
@@ -90,18 +92,23 @@ def length_height(left_source, right_source):
 
     return dst
 
-def run_rectification(source):
+def run_rectification(source, whole_length, whole_height):
     left_source = os.path.join(source,'part_contour/left_handle_irregular.png')
     left_image = os.path.join(source,'parts/left_handle_irregular.png')
     right_source = os.path.join(source, 'part_contour/right_handle_irregular.png')
     image = cv2.imread(left_image)
 
-    # get source and destination vertices
-    # left_handle_cont and right_handle_cont in rp.side and rp.facadeare are based on
-    # the contour we get from chair.py which would be stored in ./part_contour
-    # src = rp.facade(left_source, right_source)
     src, thickness = ref_point(left_source)
-    dst = length_height(left_source, right_source)
+    # for i in range(image.shape[0]):
+    #     for j in range(image.shape[1]):
+    #         if j < int(src[3][1]):
+    #             image[i][j] = [255, 255, 255]
+    # dst = length_height(left_source, right_source)
+    dst = np.array([
+        [0, 0],
+        [whole_length, 0],
+        [whole_length, whole_height],
+        [0, whole_height]], np.float32)
     H = cv2.getPerspectiveTransform(src, dst)
     R = np.linalg.inv(H)
     offset = np.full((3, 1),1)
@@ -113,13 +120,11 @@ def run_rectification(source):
 
     border_up_left = np.full((3,1), 1)
     border_lower_right = np.zeros((3,1))
-    border_lower_right[0] = image.shape[0]
-    border_lower_right[1] = image.shape[1]
+    border_lower_right[0] = newimage.shape[0]
+    border_lower_right[1] = newimage.shape[1]
     border_up_left = np.dot(H, border_up_left)
     border_lower_right = np.dot(H, border_lower_right)
 
-    # print(border_up_left)
-    # print(border_lower_right)
     dst = cv2.warpPerspective(newimage, H, (int(border_lower_right[0]), int(border_lower_right[1])), cv2.INTER_LINEAR)
 
     final_image = np.full((dst.shape[0], dst.shape[1], 3), 255, np.uint8)
@@ -134,4 +139,4 @@ def run_rectification(source):
 # -------- main program -------------------------
 if __name__ == "__main__":
     source = 'chairs\\51-1'
-    thickness = run_rectification(source)
+    # thickness = run_rectification(source)
