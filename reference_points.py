@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from numpy.linalg import norm as distance
 
-def length_height(left_source, right_source):
+def whole_length_and_whole_height(left_source, right_source):
     left_handle = cv2.imread(left_source)
     right_handle = cv2.imread(right_source)
     left_handle_gary = cv2.cvtColor(left_handle, cv2.COLOR_BGR2GRAY)
@@ -91,6 +91,5 @@ def left_right_length_ratio(left_source, right_source):
 if __name__== "__main__":
     left_source = './chairs/9-1/part_contour/left_handle.png'
     right_source = './chairs/9-1/part_contour/right_handle.png'
-    print(length_height(left_source, right_source))
-    print(front_back_height_ratio(left_source))
+    print(whole_length_and_whole_height(left_source, right_source))
     print(left_right_length_ratio(left_source, right_source))

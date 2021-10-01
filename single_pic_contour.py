@@ -24,7 +24,7 @@ def order_sorting(image):
     return right_order
 
 
-def left_bottom(final_contour):
+def left_bottom_point_of_irregular_handle(final_contour):
     point = np.zeros((3))
     sum = 0
     for i in final_contour:

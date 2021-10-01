@@ -4,7 +4,7 @@ import numpy as np
 from numpy.linalg import norm as distance
 from sys import exit
 
-def ref_point(left_source):
+def ref_point_of_original_image(left_source):
     left_handle = cv2.imread(left_source)
     left_handle_gary = cv2.cvtColor(left_handle, cv2.COLOR_BGR2GRAY)
     l_cont = np.array(np.where(left_handle_gary == 255))
@@ -40,57 +40,10 @@ def ref_point(left_source):
     # left_handle[int(reference_points[3][0])][int(reference_points[3][1])] = [0, 255, 0]
     # cv2.imwrite(f"test.png", left_handle)
 
-
     for i in reference_points:
         i[0], i[1] = i[1], i[0]
 
     return reference_points, thickness
-
-def length_height(left_source, right_source):
-    left_handle = cv2.imread(left_source)
-    right_handle = cv2.imread(right_source)
-    left_handle_gary = cv2.cvtColor(left_handle, cv2.COLOR_BGR2GRAY)
-    right_handle_gray = cv2.cvtColor(right_handle, cv2.COLOR_BGR2GRAY)
-    l_cont = np.array(np.where(left_handle_gary == 255))
-    r_cont = np.array(np.where(right_handle_gray == 255))
-
-    # left_top -> right_top -> right_bottom -> left bottom
-    reference_points = np.zeros((4, 2))
-
-    diff_s = 0
-    for i in l_cont.T:
-        # y = x + n maximum
-        if i[0]>= diff_s:
-            reference_points[3] = i
-    diff_s = 0
-    diff_b = 10000000
-    for i in l_cont.T:
-        # y = x + n maximum
-        if i[0] + i[1] >= diff_s:
-            diff_s = i[0] + i[1]
-            reference_points[2] = i
-        # y = -x + n minimum
-        if i[0] - i[1] <= diff_b:
-            diff_b = i[0] - i[1]
-            reference_points[1] = i
-    diff_s = 0
-    for i in r_cont.T:
-        if i[0]>= diff_s:
-            reference_points[0] = i
-
-    for i in reference_points:
-        i -= [20, 20]
-
-    length = distance(reference_points[0]-reference_points[3])
-    height = distance(reference_points[1]-reference_points[2])*1.2
-
-    dst = np.array([
-        [0, 0],
-        [length, 0],
-        [length, height],
-        [0, height]], np.float32)
-
-    return dst
 
 def run_rectification(source, whole_length, whole_height):
     left_source = os.path.join(source,'part_contour/left_handle_irregular.png')
@@ -98,7 +51,7 @@ def run_rectification(source, whole_length, whole_height):
     right_source = os.path.join(source, 'part_contour/right_handle_irregular.png')
     image = cv2.imread(left_image)
 
-    src, thickness = ref_point(left_source)
+    src, thickness = ref_point_of_original_image(left_source)
     # for i in range(image.shape[0]):
     #     for j in range(image.shape[1]):
     #         if j < int(src[3][1]):

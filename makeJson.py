@@ -4,12 +4,12 @@ import os
 import numpy as np
 from sys import exit
 from numpy.linalg import norm as distance
-from reference_points import length_height, left_right_length_ratio
+from reference_points import whole_length_and_whole_height, left_right_length_ratio
 from rectification import run_rectification
-from single_pic_contour import run_contour, left_bottom
+from single_pic_contour import run_contour, left_bottom_point_of_irregular_handle
 
 def whole_lwh(Left_source, Right_source):
-    length, height = length_height(Left_source, Right_source)
+    length, height = whole_length_and_whole_height(Left_source, Right_source)
     left_right_ratio = left_right_length_ratio(Left_source, Right_source)
     return length, length, height, left_right_ratio
 
@@ -125,7 +125,7 @@ def create_irregular_handles(path, whole_length, whole_width, whole_height):
     obj = {}
     thickness = run_rectification(path, whole_length, whole_height)
     contour_points = run_contour(path)
-    lebo = left_bottom(contour_points)
+    lebo = left_bottom_point_of_irregular_handle(contour_points)
     left_points = []
     right_points = []
     for i in contour_points:
