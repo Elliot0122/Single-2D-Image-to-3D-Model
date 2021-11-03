@@ -4,7 +4,7 @@ import os
 import numpy as np
 from sys import exit
 from numpy.linalg import norm as distance
-from reference_points import whole_length_and_whole_height, left_right_length_ratio
+from reference_points import whole_length_and_whole_height, left_right_length_ratio, whole_length_and_whole_height_without_handles
 from rectification import run_rectification
 from single_pic_contour import run_contour, left_bottom_point_of_irregular_handle
 
@@ -12,6 +12,10 @@ def whole_lwh(Left_source, Right_source):
     length, height = whole_length_and_whole_height(Left_source, Right_source)
     left_right_ratio = left_right_length_ratio(Left_source, Right_source)
     return length, length, height, left_right_ratio
+
+def whole_lwh_without_handles(Cushion_source):
+    length, height = whole_length_and_whole_height_without_handles(Cushion_source)
+    return length, length, height, 1.5
 
 def get_parameter(path):
     image = cv2.imread(path)
@@ -170,7 +174,7 @@ def run(file_path):
     if os.path.isfile(Left_source):
         whole_length , whole_width, whole_height, left_right_ratio= whole_lwh(Left_source, Right_source)
     elif os.path.isfile(Cushion_source):
-        whole_length, whole_width, whole_height, left_right_ratio = whole_lwh(Cushion_source, Cushion_source)
+        whole_length, whole_width, whole_height, left_right_ratio = whole_lwh_without_handles(Cushion_source)
     left_right_ratio-=0.5
 
     if os.path.isfile(Left_source):
@@ -194,12 +198,20 @@ def run(file_path):
         parts_obj["bottom"] = obj["bottom"]
 
     if os.path.isfile(Back_cushion_source):
-        cush_h = cushion_height(Right_source, Back_cushion_source, whole_height, lower_bottom_height, bottom_height)
+        if os.path.isfile(Right_source):
+            cush_h = cushion_height(Right_source, Back_cushion_source, whole_height, lower_bottom_height, bottom_height)
+        else:
+            cush_h = whole_height
+            left_handle_length = bottom_height
         obj, back_cushion_offset = create_back_cushion(Back_cushion_source, whole_length, whole_width, whole_height, left_handle_length, bottom_height, lower_bottom_height, cush_h)
         parts_obj["back_cushion"] = obj["back_cushion"]
 
     if os.path.isfile(Cushion_source):
-        cush_h = cushion_height(Right_source, Cushion_source, whole_height, lower_bottom_height, bottom_height)
+        if os.path.isfile(Right_source):
+            cush_h = cushion_height(Right_source, Cushion_source, whole_height, lower_bottom_height, bottom_height)
+        else:
+            cush_h = whole_height
+            left_handle_length = bottom_height
         obj = create_cushion(Cushion_source, whole_length , whole_width, whole_height, left_handle_length, bottom_height, lower_bottom_height, back_cushion_offset, cush_h)
         parts_obj["cushion"] = obj["cushion"]
 

@@ -88,6 +88,53 @@ def left_right_length_ratio(left_source, right_source):
 
     return (int(distance(reference_points[0]-reference_points[1]))+int(distance(reference_points[1]-reference_points[2])))/int(distance(reference_points[0]-reference_points[1]))
 
+def whole_length_and_whole_height_without_handles(Cushion_source):
+    cushion = cv2.imread(Cushion_source)
+    cushion_gary = cv2.cvtColor(cushion, cv2.COLOR_BGR2GRAY)
+    c_cont = np.array(np.where(cushion_gary == 255))
+
+    # right_bottom -> right_top -> left_top -> left_bottom
+    reference_points = np.zeros((4, 2))
+
+    diff_s = 0
+    diff_b = 10000000
+    for i in c_cont.T:
+        # y = x + n maximum
+        if i[0] - i[1] >= diff_s:
+            diff_s = i[0] - i[1]
+            reference_points[0] = i
+        # y = -x + n minimum
+        if i[0] + i[1] <= diff_b:
+            diff_b = i[0] + i[1]
+            reference_points[1] = i
+    diff_s = 0
+    diff_b = 10000000
+    for i in c_cont.T:
+        # y = -x + n minimum
+        if i[0] - i[1] <= diff_b:
+            diff_b = i[0] - i[1]
+            reference_points[2] = i
+        # y = x + n maximum
+        if i[0] + i[1] >= diff_s:
+            diff_s = i[0] + i[1]
+            reference_points[3] = i
+    
+    height1 = distance(reference_points[0] - reference_points[1])
+    height2 = distance(reference_points[2] - reference_points[3])
+    length1 = distance(reference_points[0] - reference_points[3])
+    length2 = distance(reference_points[1] - reference_points[2])
+    if height1 > height2:
+        height = height1
+    else:
+        height = height2
+    if length1 > length2:
+        length = length1
+    else:
+        length = length2
+
+    return length, height
+
+
 if __name__== "__main__":
     left_source = './chairs/9-1/part_contour/left_handle.png'
     right_source = './chairs/9-1/part_contour/right_handle.png'
