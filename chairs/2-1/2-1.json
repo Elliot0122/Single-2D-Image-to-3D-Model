@@ -1,0 +1,129 @@
+{
+    "left_handle": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                480.5,
+                0,
+                0
+            ],
+            "l_w_h": [
+                23.774436090225564,
+                961,
+                807.8669444902422
+            ]
+        }
+    },
+    "right_handle": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                -480.5,
+                0,
+                0
+            ],
+            "l_w_h": [
+                23.774436090225564,
+                961,
+                807.8669444902422
+            ]
+        }
+    },
+    "lower_bottom": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                0,
+                0,
+                -320.3377187644568
+            ],
+            "l_w_h": [
+                937.2255639097745,
+                961,
+                167.19150696132863
+            ]
+        }
+    },
+    "bottom": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                0,
+                0,
+                -155.55545162542677
+            ],
+            "l_w_h": [
+                937.2255639097745,
+                961,
+                162.3730273167314
+            ]
+        }
+    },
+    "cushion": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                0,
+                468.6127819548872,
+                223.28226713903
+            ],
+            "l_w_h": [
+                937.2255639097745,
+                23.774436090225564,
+                595.3024102121822
+            ]
+        }
+    },
+    "leg1": {
+        "type": "Cylinder",
+        "parameter": {
+            "reference_point": [
+                480.5,
+                455.5,
+                -643.2345378507719
+            ],
+            "height": 239.30106560565082,
+            "radius": 12.5,
+            "cap": true
+        }
+    },
+    "leg2": {
+        "type": "Cylinder",
+        "parameter": {
+            "reference_point": [
+                -480.5,
+                455.5,
+                -643.2345378507719
+            ],
+            "height": 239.30106560565082,
+            "radius": 12.5,
+            "cap": true
+        }
+    },
+    "leg3": {
+        "type": "Cylinder",
+        "parameter": {
+            "reference_point": [
+                480.5,
+                -455.5,
+                -643.2345378507719
+            ],
+            "height": 239.30106560565082,
+            "radius": 12.5,
+            "cap": true
+        }
+    },
+    "leg4": {
+        "type": "Cylinder",
+        "parameter": {
+            "reference_point": [
+                -480.5,
+                -455.5,
+                -643.2345378507719
+            ],
+            "height": 239.30106560565082,
+            "radius": 12.5,
+            "cap": true
+        }
+    }
+}

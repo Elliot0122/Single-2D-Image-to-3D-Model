@@ -1,0 +1,144 @@
+{
+    "left_handle": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                387.5,
+                0,
+                0
+            ],
+            "l_w_h": [
+                94.2333482342423,
+                775,
+                572.0
+            ]
+        }
+    },
+    "right_handle": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                -387.5,
+                0,
+                0
+            ],
+            "l_w_h": [
+                94.2333482342423,
+                775,
+                572.0
+            ]
+        }
+    },
+    "lower_bottom": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                0,
+                0,
+                -220.37797625796657
+            ],
+            "l_w_h": [
+                680.7666517657577,
+                775,
+                131.24404748406687
+            ]
+        }
+    },
+    "bottom": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                0,
+                0,
+                -80.74919606761958
+            ],
+            "l_w_h": [
+                680.7666517657577,
+                775,
+                148.0135128966271
+            ]
+        }
+    },
+    "back_cushion": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                0,
+                340.38332588287886,
+                204.128780190347
+            ],
+            "l_w_h": [
+                680.7666517657577,
+                94.2333482342423,
+                421.742439619306
+            ]
+        }
+    },
+    "cushion": {
+        "type": "Box",
+        "parameter": {
+            "reference_point": [
+                0,
+                246.14997764863656,
+                301.12878019034696
+            ],
+            "l_w_h": [
+                680.7666517657577,
+                94.2333482342423,
+                615.742439619306
+            ]
+        }
+    },
+    "leg1": {
+        "type": "Cylinder",
+        "parameter": {
+            "reference_point": [
+                387.5,
+                363.5,
+                -570.2850681973994
+            ],
+            "height": 284.28506819739937,
+            "radius": 12.0,
+            "cap": true
+        }
+    },
+    "leg2": {
+        "type": "Cylinder",
+        "parameter": {
+            "reference_point": [
+                -387.5,
+                363.5,
+                -570.2850681973994
+            ],
+            "height": 284.28506819739937,
+            "radius": 12.0,
+            "cap": true
+        }
+    },
+    "leg3": {
+        "type": "Cylinder",
+        "parameter": {
+            "reference_point": [
+                387.5,
+                -363.5,
+                -570.2850681973994
+            ],
+            "height": 284.28506819739937,
+            "radius": 12.0,
+            "cap": true
+        }
+    },
+    "leg4": {
+        "type": "Cylinder",
+        "parameter": {
+            "reference_point": [
+                -387.5,
+                -363.5,
+                -570.2850681973994
+            ],
+            "height": 284.28506819739937,
+            "radius": 12.0,
+            "cap": true
+        }
+    }
+}
