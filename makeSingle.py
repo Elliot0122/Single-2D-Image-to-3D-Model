@@ -2,7 +2,6 @@ import makeContour as mc
 import makeJson as mj
 import makeRhinoScript as ms
 import makeobj as mo
-import addPoint as ad
 
 # for r in range(100):
 #     path = f'irregular_desk\\{r+1}-1'
@@ -17,4 +16,4 @@ for r in irr:
     mj.run(path)
     ms.run(path)
     mo.run(path)
-    ad.run(path)
+    #ad.run(path)
