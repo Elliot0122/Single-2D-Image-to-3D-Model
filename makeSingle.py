@@ -9,9 +9,9 @@ import makeobj as mo
 #     mj.run(path)
 #     ms.run(path)
 #     mo.run(path)
-irr = [1]
+irr = [2,4,5]
 for r in irr:
-    path = f'irregular_desk\\{r}-1'
+    path = f'chairs\\{r}-1'
     mc.run(path)
     mj.run(path)
     ms.run(path)
