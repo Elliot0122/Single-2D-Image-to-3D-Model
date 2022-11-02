@@ -1,0 +1,14 @@
+{   
+    "box": {
+        "left_handle" : [115, 1, 1],
+        "left_handle_irregular": [230, 2, 10],
+        "right_handle" : [5, 5, 1],
+        "right_handle_irregular":[20, 100, 100],
+        "cushion" : [1, 115, 1],
+        "back_cushion" : [115, 115, 1],
+        "bottom" : [24, 24, 1],
+        "lower_bottom" : [5, 115, 1],
+        "cylinder_leg" : [1, 1, 24],
+        "box_leg": [1, 24, 24]
+        }
+}
